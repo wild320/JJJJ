@@ -1,0 +1,10 @@
+{
+    "conection":{
+        "server":"localhost",
+        "user":"root",
+        "password":"",
+        "database":"vinixpets",
+        "port":"3306"
+
+    }
+}
