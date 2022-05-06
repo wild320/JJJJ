@@ -8,7 +8,8 @@ class pets extends connection{
     private $idPet;
     private $id;
     private $name;
-    private $photo;
+    private $photoUrls;    
+    private $tags;
     private $category;
     private $status;
 
@@ -21,7 +22,7 @@ class pets extends connection{
             $cantidad = $cantidad = $pagina;
         }
 
-        $query = "SELECT id, name, category, status FROM pets limit $inicio,$cantidad";
+        $query = "SELECT id, name,photoUrls,tags, category, status FROM pets limit $inicio,$cantidad";
         $datos = parent::getData($query);
         return ($datos);
     }
@@ -32,23 +33,36 @@ class pets extends connection{
         return parent::getData($query);
     }
 
+    //obtener mascota por Status
+    public function getStatus($status){
+        $query = "SELECT * FROM  pets WHERE status= '$status'";
+        return parent::getData($query);
+    }
+    
+        //metodo post
     public function post($json){
+        
         $_responses = new responses;
+            //recibo el json y lo convierto en un array
         $datos=json_decode($json,true);
-
+            //compruebo campos requidos
         if(!isset($datos['id'])|| !isset($datos['name'])){
             return $_responses->error_400();
         }else{
             $this->id=$datos['id'];            
             $this->name=$datos['name'];                        
-            if(isset($datos['photo'])){$this->photo=$datos['photo'];} 
+            if(isset($datos['photoUrls'])){
+                $resp = $this-> photoEncode($datos['photoUrls']);
+                $this->photoUrls=$resp;
+            }              
+            if(isset($datos['tags'])){$this->tags=$datos['tags'];}
             if(isset($datos['category'])){$this->category=$datos['category'];}
             if(isset($datos['status'])){$this->status=$datos['status'];}     
             $resp=$this->insertPet();
             if($resp){
                 $response = $_responses->response;
                 $response["result"]=array(
-                    "id"=>$resp
+                    "Registro N° "=>$resp
                 );                
                 return $response;
             }else{
@@ -58,9 +72,21 @@ class pets extends connection{
         }
     }
 
+    private function photoEncode($photoUrls){
+        $direction = dirname(__DIR__) . "\public\images\\";
+        $parts = explode(";base64,",$photoUrls);
+        $extension = explode('/',mime_content_type($photoUrls))[1];
+        $photo_base64 = base64_decode($parts[1]);
+        $file = $direction . uniqid(). "." . $extension;
+        file_put_contents($file,$photo_base64);
+        $newDirection = str_replace('\\','/',$file);
+
+        return $newDirection;
+    }
+
     private function insertPet(){
-        $query = "INSERT INTO pets (id,name,photo,category,status) 
-            VALUES ('".$this->id."', '".$this->name."','".$this->photo."', '".$this->category."', '".$this->status."')";
+        $query = "INSERT INTO pets (id,name,photoUrls,tags,category,status) 
+            VALUES ('".$this->id."', '".$this->name."','".$this->photoUrls."','".$this->tags."', '".$this->category."', '".$this->status."')";
         $resp = parent::nonQueryId($query);
         if($resp){
             return $resp;
@@ -81,8 +107,11 @@ class pets extends connection{
         }else{
             $this->idPet=$datos['idPet'];              
             if(isset($datos['id'])){$this->id=$datos['id'];}            
-            if(isset($datos['name'])){$this->name=$datos['name'];}            
-            if(isset($datos['photo'])){$this->photo=$datos['photo'];} 
+            if(isset($datos['name'])){$this->name=$datos['name'];} if(isset($datos['photoUrls'])){
+                $resp = $this-> photoEncode($datos['photoUrls']);
+                $this->photoUrls=$resp;
+            } 
+            if(isset($datos['tags'])){$this->tags=$datos['tags'];}
             if(isset($datos['category'])){$this->category=$datos['category'];}
             if(isset($datos['status'])){$this->status=$datos['status'];}   
 
@@ -103,8 +132,8 @@ class pets extends connection{
 
     
     private function editPet(){
-        $query = "UPDATE pets SET name='".$this->name."',photo='".$this->photo."',category='"
-            .$this->category."',status='".$this->status."' WHERE idPet ='".$this->idPet."'";   
+        $query = "UPDATE pets SET name='".$this->name."',photoUrls='".$this->photoUrls."',tags='".$this->tags."',
+                category='".$this->category."',status='".$this->status."'WHERE idPet ='".$this->idPet."'";   
                 
         $resp = parent::nonQuery($query);
         if($resp>=1){

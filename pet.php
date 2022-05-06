@@ -1,7 +1,7 @@
 <?php
 
-require_once 'class/responses-class.php';
-require_once 'class/pets-class.php';
+require_once'class/responses-class.php';
+require_once'class/pets-class.php';
 
 
 $_responses = new responses;
@@ -21,7 +21,14 @@ if($_SERVER['REQUEST_METHOD'] == 'GET'){
         header("content-type: application/json");        
         echo json_encode($dataPet);
         http_response_code(200);
-    }    
+    }   elseif(isset($_GET['status'])){
+        $status= $_GET['status'];
+        $dataPet = $_pets->getStatus($status);
+        header("content-type: application/json");        
+        echo json_encode($dataPet);
+        http_response_code(200);
+    } 
+
     //Metodo POST
 }elseif($_SERVER['REQUEST_METHOD'] == 'POST'){
       //recibimos los datos enviados
@@ -39,9 +46,8 @@ if($_SERVER['REQUEST_METHOD'] == 'GET'){
      echo json_encode($datosArray);
     
     
-
-
-
+    
+      //Metodo PUT
 }elseif($_SERVER['REQUEST_METHOD'] == 'PUT'){
 
      //recibimos los datos enviados
@@ -59,12 +65,22 @@ if($_SERVER['REQUEST_METHOD'] == 'GET'){
     echo json_encode($datosArray);
    
    
-    
+    //Metodo POST 
 }elseif($_SERVER['REQUEST_METHOD'] == 'DELETE'){
+        //recibimos los datos enviados bien sea por body o por header        
+    $header=getallheaders();
+    if(isset($headers["idPet"])){
+        $send = [
+            "idPet"=>$headers["idPet"]
+        ];
+        $postBody= json_encode($send);
 
-    
-     //recibimos los datos enviados
-     $postBody = file_get_contents("php://input");
+    }else{
+        
+        $postBody = file_get_contents("php://input");
+
+    }
+
      //enviamos los datos al manejador
     $datosArray = $_pets->delete($postBody);
      //delvovemos una respuesta 
