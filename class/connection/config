@@ -3,7 +3,7 @@
         "server":"localhost",
         "user":"root",
         "password":"",
-        "database":"vinixpets",
+        "database":"mascostas",
         "port":"3306"
 
     }
