@@ -17,13 +17,13 @@ if($_SERVER['REQUEST_METHOD'] == 'GET'){
         http_response_code(200);
     }elseif(isset($_GET['id'])){
         $id = $_GET['id'];
-        $dataPet = $_pets->getPet($id);
+        $dataPet = $_pets->petId($id);
         header("content-type: application/json");        
         echo json_encode($dataPet);
         http_response_code(200);
     }   elseif(isset($_GET['status'])){
         $status= $_GET['status'];
-        $dataPet = $_pets->getStatus($status);
+        $dataPet = $_pets->findPetsByStatus($status);
         header("content-type: application/json");        
         echo json_encode($dataPet);
         http_response_code(200);
