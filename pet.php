@@ -68,17 +68,15 @@ if($_SERVER['REQUEST_METHOD'] == 'GET'){
     //Metodo POST 
 }elseif($_SERVER['REQUEST_METHOD'] == 'DELETE'){
         //recibimos los datos enviados bien sea por body o por header        
-    $header=getallheaders();
-    if(isset($headers["idPet"])){
+    $headers=getallheaders();
+    if(isset($headers["id"])){
         $send = [
-            "idPet"=>$headers["idPet"]
+            "id"=>$headers["id"]
         ];
         $postBody= json_encode($send);
 
-    }else{
-        
+    }else{        
         $postBody = file_get_contents("php://input");
-
     }
 
      //enviamos los datos al manejador
@@ -91,8 +89,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET'){
     }else{
         http_response_code(200);
     }
-    echo json_encode($datosArray);
-    
+    echo json_encode($datosArray);    
     
 }else{
     header('content-type:application/json');
